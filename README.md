@@ -27,4 +27,4 @@ This app helps clinics manage patient diabetes data via an interactive form avai
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/your-username/cgm-device-demo.git
+   git clone https://github.com/abhimanyuyadav0/cgm-device-demo.git
