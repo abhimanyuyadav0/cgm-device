@@ -2,7 +2,7 @@ import React from "react";
 
 const EligibilityVerification = () => {
   return (
-    <div className="p-6 max-w-2xl mx-auto bg-white shadow-md rounded-lg">
+    <div className="p-2 bg-white shadow-md rounded-lg">
       <div className="bg-blue-100 p-4 mb-4 rounded-md">
         <h2 className="text-lg font-semibold text-blue-800">
           Medicare Eligibility Verification

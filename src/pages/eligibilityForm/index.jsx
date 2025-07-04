@@ -11,11 +11,15 @@ import InfoCard from "./InfoCard";
 import { IoIosPulse } from "react-icons/io";
 import PatientProfileCard from "./patientProfileCard";
 import ProviderDocumentationCard from "./ProviderDocumentationCard";
+import EligibilityVerification from "../medicareEligibiltyform";
+import DiabetesForm from "./diabetesForm";
+import Modal from "../../components/modal";
 
 const EligibilityFormProgress = () => {
   // Store all form data in real-time
   const [allFormData, setAllFormData] = useState({});
   const [currentStep, setCurrentStep] = useState(0);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const steps = [
     {
@@ -82,20 +86,7 @@ const EligibilityFormProgress = () => {
       title: "Eligibility Assessment",
       description: "Medicare CCM eligibility criteria",
       icon: <FaVials />,
-      formConfig: [
-        {
-          name: "eligibilityNotes",
-          label: "Notes on Eligibility",
-          type: "textarea",
-          required: true,
-        },
-        {
-          name: "chronicConditions",
-          label: "Other Chronic Conditions",
-          type: "text",
-          required: false,
-        },
-      ],
+      formConfig: [],
     },
     {
       title: "CGM Device Selection",
@@ -161,17 +152,14 @@ const EligibilityFormProgress = () => {
   const handleFormChange = (updatedFormData) => {
     setAllFormData((prev) => {
       const merged = { ...prev, ...updatedFormData };
-      console.log("Real-time form data update:", merged);
       return merged;
     });
   };
 
   // Handle step completion
   const handleComplete = (finalData) => {
-    console.log("Form completed! Final collected data:", finalData);
     setAllFormData(finalData);
-
-    alert("Form completed successfully! Check console for data.");
+    setIsModalOpen(true);
   };
 
   // Handle step navigation
@@ -186,59 +174,45 @@ const EligibilityFormProgress = () => {
   return (
     <div className="bg-gray-50 min-h-screen">
       <div className="max-w-4xl mx-auto">
-        {currentStep}
-        {/* Real-time data display for debugging */}
-        <div className="mb-6 p-4 bg-white rounded-lg shadow-sm">
-          <h3 className="text-lg font-semibold mb-2">Current Form Data (Real-time)</h3>
-          <pre className="text-xs bg-gray-700 p-2 rounded overflow-auto max-h-40">
-            {JSON.stringify(allFormData, null, 2)}
-          </pre>
-        </div>
-        <div className="mb-2">
-          <InfoCard
-            title="Clinic Information"
-            data={{
-              name: "AllinaHealthPartners Birmingham Medical Group",
-              locationCode: "ABM-458B",
-              address: "241 Efferetz Lakes, Marielaport, WY 03376",
-              phone: "377-697-4873",
-              fax: "N/A, 890-637-7894",
-              npi: "7777134245",
-              dea: "UP2359428",
-            }}
-          />
-        </div>
-        <div className="mb-2">
-          <PatientProfileCard
-            title="Patient Profile"
-            data={{
-              name: "Ronald Robinson",
-              birthDate: "12/17/1952",
-              age: 72,
-              gender: "male",
-              medicareId: "M922784",
-              partAStatus: "Active",
-              partBStatus: "Active",
-              partDPlan: "SilverScript Choice",
-              partDEffectiveDate: "1/21/2025",
-            }}
-          />
-        </div>
-        <div className="mb-2">
-          <ProviderDocumentationCard
-            handleChange={handleChange}
-            form={allFormData}
-            title="Provider Documentation & Clinical Justification"
-            data={{
-              notes: `Example: Patient has frequent nocturnal hypoglycemia despite careful monitoring and multiple medication adjustments. Family reports patient has hypoglycemia unawareness with episodes occurring 2-3 times per week. Current fingerstick monitoring is insufficient to detect trends and prevent dangerous episodes. CGM would provide essential safety alerts and trend data to optimize diabetes management and prevent severe hypoglycemic events...`,
-              tip: `Tips: Include specific examples of hypoglycemic events, failed interventions, and how CGM will improve patient safety and diabetes management.`,
-              recommendedDocs: `Recommended: Glucose logs, lab results, hypoglycemia event documentation`,
-            }}
-          />
-        </div>
+        {currentStep === 0 && (
+          <>
+            <div className="mb-2">
+              <InfoCard
+                title="Clinic Information"
+                data={{
+                  name: "AllinaHealthPartners Birmingham Medical Group",
+                  locationCode: "ABM-458B",
+                  address: "241 Efferetz Lakes, Marielaport, WY 03376",
+                  phone: "377-697-4873",
+                  fax: "N/A, 890-637-7894",
+                  npi: "7777134245",
+                  dea: "UP2359428",
+                }}
+              />
+            </div>
+            <div className="mb-2">
+              <PatientProfileCard
+                title="Patient Profile"
+                data={{
+                  name: "Ronald Robinson",
+                  birthDate: "12/17/1952",
+                  age: 72,
+                  gender: "male",
+                  medicareId: "M922784",
+                  partAStatus: "Active",
+                  partBStatus: "Active",
+                  partDPlan: "SilverScript Choice",
+                  partDEffectiveDate: "1/21/2025",
+                }}
+              />
+            </div>
+          </>
+        )}
+
         <h1 className="text-2xl font-bold text-gray-800 mb-6">
-          CGM Eligibility Assessment Form
+          New Continuous Glucose Monitor (CGM) Certificate of Medical Necessity
         </h1>
+
         <DynamicStepper
           steps={steps}
           onComplete={handleComplete}
@@ -247,7 +221,37 @@ const EligibilityFormProgress = () => {
           initialData={allFormData}
           title={"CGM Eligibility Assessment Form"}
         />
+        {currentStep === 2 && (
+          <div className="mt-3">
+            <EligibilityVerification />
+          </div>
+        )}
+        {currentStep === 1 && (
+          <div className="mt-4 mb-2">
+            <DiabetesForm />
+            <ProviderDocumentationCard
+              handleChange={handleChange}
+              form={allFormData}
+              title="Provider Documentation & Clinical Justification"
+              data={{
+                notes: `Example: Patient has frequent nocturnal hypoglycemia despite careful monitoring and multiple medication adjustments. Family reports patient has hypoglycemia unawareness with episodes occurring 2-3 times per week. Current fingerstick monitoring is insufficient to detect trends and prevent dangerous episodes. CGM would provide essential safety alerts and trend data to optimize diabetes management and prevent severe hypoglycemic events...`,
+                tip: `Tips: Include specific examples of hypoglycemic events, failed interventions, and how CGM will improve patient safety and diabetes management.`,
+                recommendedDocs: `Recommended: Glucose logs, lab results, hypoglycemia event documentation`,
+              }}
+            />
+          </div>
+        )}
       </div>
+      {isModalOpen && (
+        <Modal size="lg" isOpen={isModalOpen} onClose={()=>setIsModalOpen(!isModalOpen)}>
+          <div className=" rounded-lg shadow-sm">
+            <h3 className="text-lg font-semibold mb-2">Form Data</h3>
+            <pre className="text-xs bg-gray-700 p-2 rounded overflow-auto max-h-40">
+              {JSON.stringify(allFormData, null, 2)}
+            </pre>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 };
